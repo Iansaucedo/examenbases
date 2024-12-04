@@ -57,3 +57,21 @@ ALTER TABLE `entrenadores`
 --
 ALTER TABLE `entrenadores`
   ADD CONSTRAINT `entrenadores_ibfk_1` FOREIGN KEY (`programa_id`) REFERENCES `programas` (`programa_id`);
+
+  -- 
+  -- Trigger validation
+  --
+  DELIMITER $$
+
+CREATE TRIGGER validate_nombre_not_numeric
+BEFORE INSERT ON Entrenadores
+FOR EACH ROW
+BEGIN
+    -- Verifica si el valor de "nombre" contiene algún número
+    IF NEW.nombre REGEXP '[0-9]' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El campo "nombre" no puede contener números.';
+    END IF;
+END$$
+
+DELIMITER ;
