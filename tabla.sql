@@ -31,3 +31,24 @@ END;
 -- Esta instrucción generará un error debido al solapamiento con la inscripción existente del grupo 1
 INSERT INTO `inscripciones` (`grupo_id`, `fecha_inicio`, `fecha_fin`)
 VALUES (1, '2024-05-01', '2024-07-01');
+
+CREATE TRIGGER trg_update_capacidad_on_insert
+AFTER INSERT ON `inscripciones`
+FOR EACH ROW
+BEGIN
+    UPDATE `centros`
+    SET `capacidad` = `capacidad` - 1
+    WHERE `id_centro` = NEW.`grupo_id`;
+END;
+
+
+
+CREATE TRIGGER trg_after_delete_inscripciones
+AFTER DELETE ON `inscripciones`
+FOR EACH ROW
+BEGIN
+    -- Ejemplo: Disminuir la ocupación del centro al eliminar una inscripción
+    UPDATE `centros`
+    SET `capacidad` = `capacidad` + 1
+    WHERE `id_centro` = OLD.`grupo_id`;
+END;
