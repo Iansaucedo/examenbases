@@ -17,3 +17,17 @@ VALUES
 (3, '2024-03-01', '2024-08-01'),
 (4, '2024-04-01', '2024-09-01'),
 (5, '2024-05-01', '2024-10-01');
+
+CREATE TRIGGER trg_validate_dates_inscripciones
+BEFORE INSERT ON `inscripciones`
+FOR EACH ROW
+BEGIN
+    IF NEW.`fecha_inicio` >= NEW.`fecha_fin` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: La fecha de inicio debe ser anterior a la fecha de fin.';
+    END IF;
+END;
+
+-- Esta instrucción generará un error debido al solapamiento con la inscripción existente del grupo 1
+INSERT INTO `inscripciones` (`grupo_id`, `fecha_inicio`, `fecha_fin`)
+VALUES (1, '2024-05-01', '2024-07-01');
